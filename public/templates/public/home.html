@@ -1,0 +1,121 @@
+{% extends 'public/base.html' %}
+
+{% block head %}
+    <style>
+        body{
+            margin:0;
+            font-family: 'Source Sans Pro', sans-serif;
+        }
+
+        .heading{
+            color:#fff;
+            margin: 10px;
+            font-weight:300;
+        }
+
+        .container{
+            max-width: 100%;
+            width:100vw;
+            height:100vh;
+            background-color:#264d6e;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .center{
+            text-align: center;
+            min-height: 200px;
+        }
+
+        .center select{
+            padding:5px;
+        }
+
+        .center select option{
+            padding:5px;
+        }
+
+        .groups{
+            clear:both;
+            display:block;
+            margin:10px auto;
+            width:120px;
+        }
+
+        #next{
+            background-color:#1e2d4e;
+            border:0;
+            padding:10px 15px;
+            cursor:pointer;
+            color:white;
+        }
+    </style>
+{% endblock head %}
+
+{% block body %}
+    <div class="container">
+        <div class="center">
+            <h3 class="heading">What day is it today?</h3>
+            <select class="groups" name="groups" id="group1" onchange="selectDuplicate(this)">
+                <option value="0">--------</option>
+                {% for group in groups %}
+                    <option value="{{ group.id }}">{{ group.name|title }}</option>
+                {% endfor %}
+            </select>
+            <button id="next">Next</button>
+        </div>
+    </div>
+{% endblock body %}
+
+{% block script %}
+    <script>
+
+        // setup CSRF token on AJAX requests
+        $.ajaxSetup({
+            beforeSend: function (xhr, settings) {
+                function getCookie(name) {
+                    var cookieValue = null;
+                    if (document.cookie && document.cookie != '') {
+                        var cookies = document.cookie.split(';');
+                        for (var i = 0; i < cookies.length; i++) {
+                            var cookie = jQuery.trim(cookies[i]);
+                            // Does this cookie string begin with the name we want?
+                            if (cookie.substring(0, name.length + 1) == (name + '=')) {
+                                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                                break;
+                            }
+                        }
+                    }
+                    return cookieValue;
+                }
+                if (!(/^http:.*/.test(settings.url) || /^https:.*/.test(settings.url))) {
+                    // Only send the token to relative URLs i.e. locally.
+                    xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));
+                }
+            }
+        });
+
+        // duplicates selects when group is picked
+        function selectDuplicate(element){
+
+            // clone old select and paste after original
+            var clone = $(element).clone();
+            $(element).after(clone);
+
+            // add 1 to the ID of the new element
+            var newID = (parseInt(clone.attr('id').split('group')[1]) + 1);
+            clone.attr('id', 'group' + newID);
+
+            // find the selected val and remove from new select
+            var selectedVal = $(element).val();
+            clone.find('option[value="' + selectedVal + '"]').remove();
+        };
+
+        $('#next').click(function(){
+            $.post('{% url "setup_workout" %}', {'foo':'bar'}, function(){
+                document.location.href = '{% url "create_workout" %}';
+            });
+        });
+    </script>
+{% endblock script %}
