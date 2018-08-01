@@ -65,7 +65,7 @@
             </select>
             <button id="next">Next</button>
         </div>
-        {{ csrftoken }}
+        {% csrf_token %}
     </div>
 {% endblock body %}
 
@@ -104,8 +104,20 @@
         };
 
         $('#next').click(function(){
-            $.post('{% url "setup_workout" %}', {'foo':'bar', 'X-CSRFToken': '{{ csrftoken }}'}, function(){
-                document.location.href = '{% url "create_workout" %}';
+
+            // assemble simple array of the group IDs
+            var groups = [];
+            $('.groups').each(function(i,v){
+                var group = parseInt($(v).val());
+                // push group value to array if it's > 0 (a valid ID)
+                if (group > 0){
+                    groups.push(group);
+                }
+            });
+
+            // send post to setup the new workout object associated with the selected groups
+            $.post('{% url "setup_workout" %}', {'groups': groups}, function(){
+                // document.location.href = '{% url "create_workout" %}';
             });
         });
     </script>

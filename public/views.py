@@ -21,5 +21,5 @@ class WorkoutCreateView(CreateView):
 # API
 def setupWorkout(request):
     # here, create workout, and all the WorkoutWithGroup necessary
-    print request.POST
+    print request.POST, request.POST.get('groups')
     return JsonResponse({'status' : 'success'})
