@@ -4,31 +4,24 @@ from __future__ import unicode_literals
 import datetime
 
 from django.db import models
-from django.utils.functional import lazy
-from django.utils.timezone import localtime, now
-
-
-def get_tz_aware_now():
-    return localtime(now())
 
 
 class TimeStampedModel(models.Model):
     """
     abstract model adding creation / last update fields
     """
-    created = models.DateTimeField(
-        default=lazy(get_tz_aware_now, datetime.datetime)()
-    )
+    # simplify created into auto_now_add=True
+    created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
     class Meta:
         abstract = True
-    def save(self, *args, **kwargs):
-        if not self.pk:
-            self.created = localtime(now())
-        return super(TimeStampedModel, self).save(*args, **kwargs)
 
+
+# can see the structure of groups in initialize.py
 class Group(TimeStampedModel):
-    name = models.CharField(max_length=255)
+    name = models.CharField(max_length=255, unique=True)
+    # add parent, FK to self
+    parent = models.ForeignKey('self', related_name='subgroups', blank=True, null=True)
 
     def __str__(self, ):
         return self.name
@@ -47,9 +40,12 @@ class Workout(TimeStampedModel):
 
 
 class Exercise(TimeStampedModel):
-    name = models.CharField(max_length=255)
+    name = models.CharField(max_length=255, unique=True)
     group = models.ForeignKey('Group', on_delete=models.CASCADE, related_name='exercises')
     description = models.TextField()
+
+    def __str__(self, ):
+        return '{} // {}'.format(self.group.name, self.name)
 
 
 class Image(TimeStampedModel):

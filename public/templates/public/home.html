@@ -57,6 +57,7 @@
     <div class="container">
         <div class="center">
             <h3 class="heading">What day is it today?</h3>
+            <div id="selectedGroups"></div>
             <select class="groups" name="groups" id="group1" onchange="selectDuplicate(this)">
                 <option value="0">--------</option>
                 {% for group in groups %}
@@ -87,20 +88,16 @@
             }
         });
 
-        // duplicates selects when group is picked
+        // add selected group, remove it from select
         function selectDuplicate(element){
-
-            // clone old select and paste after original
-            var clone = $(element).clone();
-            $(element).after(clone);
-
-            // add 1 to the ID of the new element
-            var newID = (parseInt(clone.attr('id').split('group')[1]) + 1);
-            clone.attr('id', 'group' + newID);
 
             // find the selected val and remove from new select
             var selectedVal = $(element).val();
-            clone.find('option[value="' + selectedVal + '"]').remove();
+            var selectedText = $(element).find('option[value=' + selectedVal + ']').text();
+            $(element).find('option[value="' + selectedVal + '"]').remove();
+
+            // append selected group
+            $('#selectedGroups').append('<p class="selected-group" id="group_' + selectedVal + '">' + selectedText + '</p>');
         };
 
         $('#next').click(function(){
@@ -117,7 +114,6 @@
 
             // send post to setup the new workout object associated with the selected groups
             $.post('{% url "setup_workout" %}', {'groups': groups}, function(){
-                // document.location.href = '{% url "create_workout" %}';
             });
         });
     </script>
