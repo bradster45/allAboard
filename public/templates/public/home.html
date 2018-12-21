@@ -1,26 +1,13 @@
 {% extends 'public/base.html' %}
 
+{% load staticfiles %}
+
 {% block head %}
     <style>
-        body{
-            margin:0;
-            font-family: 'Source Sans Pro', sans-serif;
-        }
 
         .heading{
-            color:#fff;
             margin: 10px;
             font-weight:300;
-        }
-
-        .container{
-            max-width: 100%;
-            width:100vw;
-            height:100vh;
-            background-color:#264d6e;
-            display: flex;
-            justify-content: center;
-            align-items: center;
         }
 
         .center{
@@ -44,30 +31,40 @@
         }
 
         #next{
-            background-color:#1e2d4e;
             border:0;
             padding:10px 15px;
             cursor:pointer;
-            color:white;
+        }
+
+        p.selected-group{
+            margin:10px 0;
+        }
+        
+        #selectedGroups .remove-selection{
+            color: red;
+            margin-left: 5px;
+            padding-top: 0px;
+            font-size: 12px;
+            cursor: pointer;
         }
     </style>
+    <!-- bootstrap ONLY GLYPHICONS -->
+    <link rel="stylesheet" href="{% static 'external/bootstrap/css/bootstrap.css' %}">
 {% endblock head %}
 
 {% block body %}
-    <div class="container">
-        <div class="center">
-            <h3 class="heading">What day is it today?</h3>
-            <div id="selectedGroups"></div>
-            <select class="groups" name="groups" id="group1" onchange="selectDuplicate(this)">
-                <option value="0">--------</option>
-                {% for group in groups %}
-                    <option value="{{ group.id }}">{{ group.name|title }}</option>
-                {% endfor %}
-            </select>
-            <button id="next">Next</button>
-        </div>
-        {% csrf_token %}
+    <div class="center">
+        <h3 class="heading white">What day is it today?</h3>
+        <div id="selectedGroups"></div>
+        <select class="groups" name="groups" id="groupSelectInput" onchange="selectDuplicate(this)">
+            <option value="0">--------</option>
+            {% for group in groups %}
+                <option value="{{ group.id }}">{{ group.name|title }}</option>
+            {% endfor %}
+        </select>
+        <button id="next" class="white dark-blue-background">Next</button>
     </div>
+    {% csrf_token %}
 {% endblock body %}
 
 {% block script %}
@@ -88,6 +85,15 @@
             }
         });
 
+        function generateSelectedGroupHTML(id, text){
+            var removeSpan = '<span class="remove-selection glyphicon glyphicon-remove" onclick="removeSelection(this)"></span>';
+            return '<p class="selected-group white" id="group_' + id + '" data-group-id="' + id + '">' + text + removeSpan + '</p>'
+        };
+
+        function generateOptionHTML(id, text) {
+            return '<option value="' + id + '">' + text + '</option>'
+        };
+
         // add selected group, remove it from select
         function selectDuplicate(element){
 
@@ -97,24 +103,35 @@
             $(element).find('option[value="' + selectedVal + '"]').remove();
 
             // append selected group
-            $('#selectedGroups').append('<p class="selected-group" id="group_' + selectedVal + '">' + selectedText + '</p>');
+            $('#selectedGroups').append(generateSelectedGroupHTML(selectedVal, selectedText));
         };
 
         $('#next').click(function(){
 
             // assemble simple array of the group IDs
             var groups = [];
-            $('.groups').each(function(i,v){
-                var group = parseInt($(v).val());
+            $('.selected-group').each(function(i,v){
+                var group = parseInt($(v).attr('data-group-id'));
                 // push group value to array if it's > 0 (a valid ID)
-                if (group > 0){
-                    groups.push(group);
-                }
+                groups.push(group);
             });
 
+            var post_data = {
+                'groups': groups
+            }
+
             // send post to setup the new workout object associated with the selected groups
-            $.post('{% url "setup_workout" %}', {'groups': groups}, function(){
+            $.post('{% url "setup_workout" %}', post_data, function(data){
+                console.log(data);
             });
         });
+
+        function removeSelection(element){
+            var selectedGroup = $(element).closest('p.selected-group');
+            var selectedID = selectedGroup.attr('data-group-id');
+            var selectedText = selectedGroup.text();
+            selectedGroup.remove();
+            $('#groupSelectInput').append(generateOptionHTML(selectedID, selectedText));
+        };
     </script>
 {% endblock script %}

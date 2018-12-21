@@ -38,6 +38,14 @@ class Workout(TimeStampedModel):
         through_fields=('workout', 'exercise'),
         related_name='workouts')
 
+    def __str__(self, ):
+        string = ''
+        for index, group in enumerate(self.groups.all()):
+            if index != 0:
+                string += ' //'
+            string += ' {}'.format(group.name)
+        return string
+
 
 class Exercise(TimeStampedModel):
     name = models.CharField(max_length=255, unique=True)
@@ -64,13 +72,28 @@ class WorkoutWithGroup(TimeStampedModel):
             ('group', 'workout', ),
         )
 
+
 class WorkoutWithExercise(TimeStampedModel):
     exercise = models.ForeignKey(
         'Exercise', on_delete=models.CASCADE, related_name='workouts_with_exercises')
     workout = models.ForeignKey(
         'Workout', on_delete=models.CASCADE, related_name='workouts_with_exercises')
+    order = models.IntegerField(blank=True, null=True)
 
     class Meta:
         unique_together = (
             ('exercise', 'workout', ),
+            ('workout', 'order', ),
         )
+
+    def save(self, *args, **kwargs):
+        # todo
+        # order = last order + 1 by default
+        if not self.order:
+            wwe = WorkoutWithExercise.objects.filter(workout=self.workout).order_by('order')
+            if wwe.exists():
+                self.order = wwe.last().order + 1
+            else:
+                self.order = 0
+
+        return super(WorkoutWithExercise, self).save(*args, **kwargs)

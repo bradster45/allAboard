@@ -6,8 +6,24 @@ from public.models import *
 
 # Register your models here.
 admin.site.register(Group)
-admin.site.register(Workout)
 admin.site.register(Exercise)
 admin.site.register(Image)
-admin.site.register(WorkoutWithGroup)
-admin.site.register(WorkoutWithExercise)
+
+
+class WorkoutWithGroupInline(admin.TabularInline):
+    extra = 0
+    model = WorkoutWithGroup
+
+
+class WorkoutWithExerciseInline(admin.TabularInline):
+    extra = 0
+    model = WorkoutWithExercise
+
+
+class WorkoutAdmin(admin.ModelAdmin):
+    inlines = [
+        WorkoutWithGroupInline,
+        WorkoutWithExerciseInline
+    ]
+
+admin.site.register(Workout, WorkoutAdmin)

@@ -69,7 +69,7 @@ groups = [
         "exercises" : ["Bench press"],
         "subgroups" : [
             {
-                "title" : "Press",
+                "title": "Horizontal press",
                 "exercises" : [
                     "Incline dumbbell press",
                     "Flat dumbbell press",
@@ -122,7 +122,7 @@ groups = [
         "exercises" : ["Standing overhead press"],
         "subgroups" : [
             {
-                "title" : "Press",
+                "title": "Vertical press",
                 "exercises" : [
                     "Seated dumbbell press",
                     "Landmine overhead press",
@@ -155,7 +155,11 @@ groups = [
 
 
 # not tested yet
-def initialize():
+def initialize(reset=False):
+    if reset:
+        Group.objects.all().delete()
+        Exercise.objects.all().delete()
+
     for group in groups:
         new_group, new_group_created = Group.objects.get_or_create(
             name=group['title']
@@ -177,15 +181,15 @@ def initialize():
                 )
 
 
-for group in groups:
-    indent_level = 0
-    return_string = ''
-    print(group['title'])
-    indent_level += 1
-    for exercise in group.get('exercises', []):
-        print('  ' + exercise)
-    indent_level += 1
-    for subgroup in group.get('subgroups', []):
-        print('    ' + subgroup['title'])
-        for sub_exercise in subgroup['exercises']:
-            print('      ' + sub_exercise)
+# for group in groups:
+#     indent_level = 0
+#     return_string = ''
+#     print(group['title'])
+#     indent_level += 1
+#     for exercise in group.get('exercises', []):
+#         print('  ' + exercise)
+#     indent_level += 1
+#     for subgroup in group.get('subgroups', []):
+#         print('    ' + subgroup['title'])
+#         for sub_exercise in subgroup['exercises']:
+#             print('      ' + sub_exercise)
