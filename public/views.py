@@ -21,6 +21,7 @@ class WorkoutListView(ListView):
     template_name = 'public/workout_list.html'
     paginate_by = 20
     model = Workout
+    ordering = '-date'
 
 
 class WorkoutDetailView(DetailView):
@@ -37,7 +38,7 @@ class WorkoutEditView(DetailView):
     model = Workout
     def get_context_data(self, **kwargs):
         context = super(WorkoutEditView, self).get_context_data(**kwargs)
-        context['object'] = Group.objects.filter(parent=None)
+        context['groups'] = Group.objects.filter(parent=None)
         return context
 
 
@@ -49,7 +50,6 @@ def setupWorkout(request):
     if len(groups) > 0:
         # create workout and attach groups, return ID for redirect to edit form
         workout = Workout.objects.create()
-        print(workout)
         for group in groups:
             WorkoutWithGroup.objects.create(group=Group.objects.get(id=group), workout=workout)
         if len(messages) == 0:
@@ -64,3 +64,27 @@ def setupWorkout(request):
         'messages' : messages
     })
 
+
+def updateWorkout(request, pk):
+    workout = Workout.objects.get(pk=pk)
+    exercises = request.POST.getlist('exercises[]', [])
+    messages = []
+    if len(exercises) > 0:
+        workout.workouts_with_exercises.all().delete()
+        for exercise in exercises:
+            WorkoutWithExercise.objects.create(
+                exercise=Exercise.objects.get(id=exercise),
+                workout=workout
+            )
+        workout.date = request.POST.get('date')
+        workout.save()
+        if len(messages) == 0:
+            return JsonResponse({
+                'status': 'success'
+            })
+    else:
+        messages.append('Provide some groups to create a workout.')
+    return JsonResponse({
+        'status': 'failed',
+        'messages': messages
+    })

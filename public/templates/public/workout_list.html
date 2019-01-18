@@ -12,7 +12,7 @@
                 {% for workout in object_list %}
                     <tr>
                         <td>
-                            {{ workout.created|date:"d-m-y" }}
+                            {{ workout.date|date:"d-m-y" }}
                         </td>
                         <td>
                             <a href="{% url 'edit_workout' workout.pk %}">

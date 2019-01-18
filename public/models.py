@@ -37,6 +37,7 @@ class Workout(TimeStampedModel):
         'Exercise', through='WorkoutWithExercise',
         through_fields=('workout', 'exercise'),
         related_name='workouts')
+    date = models.DateField(blank=True, null=True)
 
     def __str__(self, ):
         string = ''

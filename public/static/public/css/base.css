@@ -1,3 +1,9 @@
+* {
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+}
+
 body *{
     font-family: 'Roboto', sans-serif;
 }
@@ -29,6 +35,20 @@ div {
 body{
     margin:0;
     font-family: 'Source Sans Pro', sans-serif;
+}
+
+h1, h2, h3, h4, h5, h6{
+    margin-top:0;
+}
+
+/* spacing and widths */
+.standard-width{
+    width:600px;
+    margin:0 auto;
+}
+
+.col-50{
+    width:50%;
 }
 
 ul{

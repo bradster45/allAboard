@@ -64,26 +64,10 @@
         </select>
         <button id="next" class="white dark-blue-background">Next</button>
     </div>
-    {% csrf_token %}
 {% endblock body %}
 
 {% block script %}
     <script>
-
-        var csrftoken = jQuery("[name=csrfmiddlewaretoken]").val();
-
-        // setup CSRF token on AJAX requests
-        function csrfSafeMethod(method) {
-            // these HTTP methods do not require CSRF protection
-            return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
-        }
-        $.ajaxSetup({
-            beforeSend: function(xhr, settings) {
-                if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
-                    xhr.setRequestHeader("X-CSRFToken", csrftoken);
-                }
-            }
-        });
 
         function generateSelectedGroupHTML(id, text){
             var removeSpan = '<span class="remove-selection glyphicon glyphicon-remove" onclick="removeSelection(this)"></span>';
@@ -123,6 +107,7 @@
             // send post to setup the new workout object associated with the selected groups
             $.post('{% url "setup_workout" %}', post_data, function(data){
                 console.log(data);
+                window.location.href = '/workout-edit/' + data.workout_id + '/';
             });
         });
 

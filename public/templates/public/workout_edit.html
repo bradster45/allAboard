@@ -3,15 +3,327 @@
 {% load staticfiles %}
 
 {% block head %}
+<style>
+    #content{
+        /* min-height:400px; */
+        background-color:white;
+        box-shadow: -1px 2px 19px 3px #082839;
+    }
+
+    #content .col-50{
+        padding:10px;
+    }
+
+    .groups p{
+        padding: 5px 0;
+        margin: 0;
+    }
+    
+    .exercises{
+        display:none;
+    }
+    
+    .exercises p,
+    .exercise-set p{
+        cursor:pointer;
+    }
+    
+    .exercises p:first-child{
+        margin-top:0;
+    }
+    
+    .exercises p:last-child{
+        margin-bottom:0;
+    }
+    
+    .exercises .exercise.selected{
+        background-color:#4d9e4d;
+        color:white;
+    }
+
+    #buttons button{
+        border:none;
+        padding:5px 10px;
+        color:white;
+    }
+
+    #date{
+        padding:5px;
+    }
+
+    #groups_pool .level-1{
+        padding-left:0;
+    }
+
+    #groups_pool .level-2{
+        padding-left:20px;
+    }
+
+    #groups_pool .level-3{
+        padding-left:40px;
+    }
+
+    #groups_pool .level-4{
+        padding-left:60px;
+    }
+
+    #groups_pool .count{
+        float:right;
+    }
+
+    #workout .groups{
+        padding:10px 0;
+    }
+
+    #workout p.date{
+        margin:0;
+        font-style: italic;
+        font-size: 14px;
+    }
+
+    #buttons{
+        float:right;
+    }
+</style>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 {% endblock head %}
 
 {% block body %}
-    <div class="groups">
-        {% for group in object.workouts_with_groups.all %}
-            <p>{{ group.name }}</p>
-        {% endfor %}
+    <div class="standard-width" id="content">
+        <div id="groups_pool" class="groups col-50 left">
+            {% for wwg in object.workouts_with_groups.all %}
+
+                <div class="group parent-group" id="group_{{ wwg.group.id }}">
+                    <!-- top level group -->
+                    <p class="level-1">{{ wwg.group.name }}<span class="count total-count" data-count=0></span></p>
+
+                    {% if wwg.group.exercises.all|length > 0 %}
+                        <div class="compounds exercise-set">
+                            <p class="level-2 group-title">Compounds<span class="count" data-count=0></span></p>
+                            <!-- compound movements -->
+                            <div class="exercises">
+                                {% for exercise in wwg.group.exercises.all %}
+                                    <p class="level-3 exercise" id="exercise_{{ exercise.id }}">{{ exercise.name }}</p>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    {% endif %}
+
+                    <div class="subgroups">
+                        <!-- subgroups -->
+                        {% for subgroup in wwg.group.subgroups.all %}
+                            <div class="group exercise-set" id="group_{{ subgroup.id }}">
+                                <p class="level-2 group-title">{{ subgroup.name }}<span class="count" data-count=0></span></p>
+
+                                <!-- isolations -->
+                                <div class="exercises">
+                                    {% for exercise in subgroup.exercises.all %}
+                                        <p class="level-3 exercise" id="exercise_{{ exercise.id }}">{{ exercise.name }}</p>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+
+        <div id="workout" class="col-50 right">
+            <h3>{{ object }}</h3>
+
+            {% if not object.date %}
+                <input type="date" name="date" id="date" value="{{ object.date|date:'Y-m-d' }}">
+            {% elif now|date:"Y-m-d" < object.date|date:"Y-m-d" %}
+                <p class="date">{{ object.date }}</p>
+            {% endif %}
+
+            <div class="groups">
+                {% for wwg in object.workouts_with_groups.all %}
+
+                    <div class="group parent-group" id="workout_group_{{ wwg.group.id }}">
+                        <div class="compounds"></div>
+
+                        {% for subgroup in wwg.group.subgroups.all %}
+                            <div class="group exercise-set" id="workout_group_{{ subgroup.id }}"></div>
+                        {% endfor %}
+                    </div>
+                {% endfor %}
+            </div>
+
+            <div id="buttons">
+                <button id="clear" class="dark-red-background">Clear</button>
+                <button id="random" class="dark-blue-background">Random</button>
+                <button id="save" class="dark-green-background">Save</button>
+            </div>
+        </div>
     </div>
 {% endblock body %}
 
 {% block script %}
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script>
+
+    // first, define a number of callback functions
+
+    // hides exercises lists
+    function hideExercises(){
+        $('.exercises').slideUp();
+        $('.expanded').removeClass('expanded');
+    };
+
+    // shows selected exercises list
+    function showExercises(obj, exercises){
+        $(exercises).slideDown();
+        $(obj).addClass('expanded');
+    };
+
+    // function to update counts
+    function changeCount(exercise, selected=true){
+        
+        var this_count = $(exercise).closest('.exercise-set').find('.count');
+        var total_count = $(exercise).closest('.parent-group').find('.total-count');
+        
+        if (selected) {
+            var count_val = parseInt(this_count.attr('data-count')) + 1;
+            var total_count_val = parseInt(total_count.attr('data-count')) + 1;
+        } else {
+            var count_val = parseInt(this_count.attr('data-count')) - 1;
+            var total_count_val = parseInt(total_count.attr('data-count')) - 1;
+        }
+
+        
+        this_count.attr('data-count', count_val).text(count_val);
+        total_count.attr('data-count', total_count_val).text(total_count_val);
+    };
+
+    // function to select exercise and add it to workout
+    function selectExercise(exercise){
+
+        // ids for group and exercise clicked
+        var group_id = $(exercise).closest('.group').attr('id').split('_')[1];
+        var exercise_id = $(exercise).attr('id').split('_')[1];
+
+        $(exercise).addClass('selected');
+        changeCount(exercise);
+
+        // clone exercise and append to workout
+        var exercise_clone = $(exercise).clone();
+        exercise_clone.attr('id', 'workout_exercise_' + exercise_id);
+
+        // append to .compounds if the div has it
+        if ($('#workout_group_' + group_id).find('.compounds').length !== 0) {
+            $('#workout_group_' + group_id).find('.compounds').append(exercise_clone);
+        } else {
+            $('#workout_group_' + group_id).append(exercise_clone);
+        }
+    };
+
+    // function to deselect exercise and remove it from workout
+    function deselectExercise(exercise){
+
+        // ids for group and exercise clicked
+        var group_id = $(exercise).closest('.group').attr('id').split('_')[1];
+        var exercise_id = $(exercise).attr('id').split('_')[1];
+
+        $(exercise).removeClass('selected');
+        changeCount(exercise, false);
+
+        // remove exercise from workout
+        $('#workout_exercise_' + exercise_id).remove();
+    };
+
+    // clear current workout
+    function clearWorkout(){
+        $('#workout .exercise').each(function (index, value) {
+            var exercise_id = $(value).attr('id').split('exercise_')[1];
+            deselectExercise($('#exercise_' + exercise_id));
+        });
+    };
+
+    // second, translate django variables into useable JS variables
+
+    var exercises = [{% for wwe in object.workouts_with_exercises.all %}{{ wwe.exercise.pk }}, {% endfor %}];
+
+    // select exercises
+    $(exercises).each(function(index, value){
+        selectExercise($('#groups_pool #exercise_' + value));
+    });
+
+    // third, attach click events to html elements
+
+    // when group title is clicked
+    $('.group-title').click(function(){
+
+        // find it's exercise list and show/hide it
+        var exercises = $(this).closest('.exercise-set').find('.exercises');
+
+        if ($(this).hasClass('expanded')) {
+
+            hideExercises();
+        } else {
+
+            hideExercises();
+            showExercises(this, exercises);
+        };
+    });
+
+    // when exercise is clicked
+    $('#groups_pool .exercise').click(function(){
+
+        // detect what to do based on class selected
+        if ($(this).hasClass('selected')) {
+            deselectExercise(this);
+        } else {
+            selectExercise(this);
+        }
+    });
+
+    // random clicked, randomly generate workout
+    $('#random').click(function(){
+
+        // remove last randomized workout
+        clearWorkout();
+
+        // loop through groups
+        $('#groups_pool .group .exercise-set').each(function(index, value){
+
+            // get exercises and pick random
+            var exercises = $(value).find('.exercise');
+            var random = Math.floor(Math.random() * exercises.length);
+            var exercise = exercises.eq(random);
+            selectExercise(exercise);
+        });
+    });
+
+    // save clicked
+    $('#save').click(function(){
+        
+        // construct data and post
+        var exercises = [];
+        $('#workout .exercise').each(function(index, value){
+            exercise_id = $(value).attr('id').split('exercise_')[1];
+            exercises.push(exercise_id);
+        });
+        var data = {
+            'exercises': exercises,
+        };
+
+        if ($('#date').val() !== ''){
+            data['date'] = $('#date').val();
+        };
+
+        $.post('{% url "update_workout" object.pk %}', data, function(data){
+        });
+    });
+
+    // clear clicked
+    $('#clear').click(function(){
+        
+        clearWorkout();
+    });
+
+    // initialize flatpickr on date inputs
+
+    $('input[type="date"]').flatpickr();
+</script>
 {% endblock script %}
