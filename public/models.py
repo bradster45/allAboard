@@ -47,6 +47,22 @@ class Workout(TimeStampedModel):
             string += ' {}'.format(group.name)
         return string
 
+    def construct_tree(self, ):
+        groups = []
+        for group in self.groups.all():
+            print(group)
+            group = {
+                'name': group,
+                # get all exercises related to this workout, and group (as well as child groups)
+                'exercises': self.exercises.filter(
+                    models.Q(group=group) | models.Q(group__parent=group)
+                )
+            }
+            groups.append(group)
+        print(groups)
+        return groups
+
+
 
 class Exercise(TimeStampedModel):
     name = models.CharField(max_length=255, unique=True)

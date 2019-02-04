@@ -1,0 +1,47 @@
+.exercises{
+    display:none;
+}
+
+.exercises p,
+.exercise-set p{
+    cursor:pointer;
+}
+
+.exercises p:first-child{
+    margin-top:0;
+}
+
+.exercises p:last-child{
+    margin-bottom:0;
+}
+
+.exercises .exercise.selected{
+    background-color:#4d9e4d;
+    color:white;
+}
+
+#buttons button{
+    border:none;
+    padding:5px 10px;
+    color:white;
+}
+
+#date{
+    padding:5px;
+}
+
+#groups_pool .count{
+    float:right;
+}
+
+#workout .groups{
+    padding:10px 0;
+}
+
+#workout .groups p{
+    padding-left:0;
+}
+
+#buttons{
+    float:right;
+}

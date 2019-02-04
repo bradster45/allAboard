@@ -1,0 +1,27 @@
+.groups p{
+    font-size:14px;
+}
+
+.standard-width{
+    width:400px;
+}
+
+.group{
+    border-bottom:1px solid #b3b3b3;
+}
+
+.group p:last-child{
+    margin:0;
+}
+
+.group:last-child{
+    border:0;
+}
+
+@media only screen and (max-width: 400px) {
+    span.date{
+        float:left;
+        clear:both;
+        margin-top:5px;
+    }
+}

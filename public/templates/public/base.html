@@ -11,22 +11,31 @@
     <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
     <link rel="stylesheet" href="{% static 'public/css/base.css' %}">
     <link rel="stylesheet" href="{% static 'public/css/theme.css' %}">
+    <link rel="stylesheet" href="{% static 'public/css/spacing.css' %}">
     <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700" rel="stylesheet">
+    <link rel="shortcut icon" type="image/png" href="{% static 'public/images/icons/icon.png' %}" />
     {% block head %}{% endblock head %}
 </head>
 <body>
+    {% now "Y-m-d" as todays_date %}
     <div id="topNavigation" class="navigation dark-blue-background clearfix">
+        <div class="logo-container left padding-left-10">
+            <img src="{% static 'public/images/icons/logo_white.png' %}" alt="allAboard logo" >
+        </div>
         <ul class="right">
             <a href="{% url 'home' %}">
                 <li class="left white">Create</li>
             </a>
             <a href="{% url 'workouts' %}">
-                <li class="left white">List</li>
+                <li class="left white">Workouts</li>
+            </a>
+            <a href="{% url 'exercises' %}">
+                <li class="left white">Exercises</li>
             </a>
         </ul>
     </div>
 
-    <div class="container standard-blue-background">
+    <div class="container standard-blue-background padding-10">
         {% block body %}{% endblock body %}
     </div>
     {% csrf_token %}

@@ -1,0 +1,41 @@
+.heading{
+    font-weight:400;
+}
+
+.center{
+    text-align: center;
+    min-height: 150px;
+}
+
+.center select{
+    padding:5px;
+}
+
+.center select option{
+    padding:5px;
+}
+
+.groups{
+    clear:both;
+    display:block;
+    margin:10px auto;
+    width:120px;
+}
+
+#next{
+    border:0;
+    padding:10px 15px;
+    cursor:pointer;
+}
+
+p.selected-group{
+    margin:10px 0;
+}
+
+#selectedGroups .remove-selection{
+    color: red;
+    margin-left: 5px;
+    padding-top: 0px;
+    font-size: 12px;
+    cursor: pointer;
+}

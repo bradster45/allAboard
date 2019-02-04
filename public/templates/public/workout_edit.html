@@ -3,88 +3,7 @@
 {% load staticfiles %}
 
 {% block head %}
-<style>
-    #content{
-        /* min-height:400px; */
-        background-color:white;
-        box-shadow: -1px 2px 19px 3px #082839;
-    }
-
-    #content .col-50{
-        padding:10px;
-    }
-
-    .groups p{
-        padding: 5px 0;
-        margin: 0;
-    }
-    
-    .exercises{
-        display:none;
-    }
-    
-    .exercises p,
-    .exercise-set p{
-        cursor:pointer;
-    }
-    
-    .exercises p:first-child{
-        margin-top:0;
-    }
-    
-    .exercises p:last-child{
-        margin-bottom:0;
-    }
-    
-    .exercises .exercise.selected{
-        background-color:#4d9e4d;
-        color:white;
-    }
-
-    #buttons button{
-        border:none;
-        padding:5px 10px;
-        color:white;
-    }
-
-    #date{
-        padding:5px;
-    }
-
-    #groups_pool .level-1{
-        padding-left:0;
-    }
-
-    #groups_pool .level-2{
-        padding-left:20px;
-    }
-
-    #groups_pool .level-3{
-        padding-left:40px;
-    }
-
-    #groups_pool .level-4{
-        padding-left:60px;
-    }
-
-    #groups_pool .count{
-        float:right;
-    }
-
-    #workout .groups{
-        padding:10px 0;
-    }
-
-    #workout p.date{
-        margin:0;
-        font-style: italic;
-        font-size: 14px;
-    }
-
-    #buttons{
-        float:right;
-    }
-</style>
+<link rel="stylesheet" href="{% static 'public/css/workout_edit.css' %}">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 {% endblock head %}
 
@@ -95,15 +14,16 @@
 
                 <div class="group parent-group" id="group_{{ wwg.group.id }}">
                     <!-- top level group -->
-                    <p class="level-1">{{ wwg.group.name }}<span class="count total-count" data-count=0></span></p>
+                    <p class="no-margin padding-y-5">{{ wwg.group.name }}<span class="count total-count" data-count=0></span></p>
 
                     {% if wwg.group.exercises.all|length > 0 %}
                         <div class="compounds exercise-set">
-                            <p class="level-2 group-title">Compounds<span class="count" data-count=0></span></p>
+                            <p class="padding-left-20 group-title no-margin padding-y-5">Compounds<span class="count" data-count=0></span></p>
+
                             <!-- compound movements -->
                             <div class="exercises">
                                 {% for exercise in wwg.group.exercises.all %}
-                                    <p class="level-3 exercise" id="exercise_{{ exercise.id }}">{{ exercise.name }}</p>
+                                    <p class="padding-left-40 exercise no-margin padding-y-5" id="exercise_{{ exercise.id }}">{{ exercise.name }}</p>
                                 {% endfor %}
                             </div>
                         </div>
@@ -113,12 +33,12 @@
                         <!-- subgroups -->
                         {% for subgroup in wwg.group.subgroups.all %}
                             <div class="group exercise-set" id="group_{{ subgroup.id }}">
-                                <p class="level-2 group-title">{{ subgroup.name }}<span class="count" data-count=0></span></p>
+                                <p class="padding-left-20 group-title no-margin padding-y-5">{{ subgroup.name }}<span class="count" data-count=0></span></p>
 
                                 <!-- isolations -->
                                 <div class="exercises">
                                     {% for exercise in subgroup.exercises.all %}
-                                        <p class="level-3 exercise" id="exercise_{{ exercise.id }}">{{ exercise.name }}</p>
+                                        <p class="padding-left-40 exercise no-margin padding-y-5" id="exercise_{{ exercise.id }}">{{ exercise.name }}</p>
                                     {% endfor %}
                                 </div>
                             </div>
@@ -131,7 +51,7 @@
         <div id="workout" class="col-50 right">
             <h3>{{ object }}</h3>
 
-            {% if not object.date %}
+            {% if not object.date or object.date|date:"Y-m-d" >= todays_date %}
                 <input type="date" name="date" id="date" value="{{ object.date|date:'Y-m-d' }}">
             {% elif now|date:"Y-m-d" < object.date|date:"Y-m-d" %}
                 <p class="date">{{ object.date }}</p>
@@ -161,21 +81,10 @@
 
 {% block script %}
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="{% static 'public/js/exercise_slider.js' %}"></script>
 <script>
 
     // first, define a number of callback functions
-
-    // hides exercises lists
-    function hideExercises(){
-        $('.exercises').slideUp();
-        $('.expanded').removeClass('expanded');
-    };
-
-    // shows selected exercises list
-    function showExercises(obj, exercises){
-        $(exercises).slideDown();
-        $(obj).addClass('expanded');
-    };
 
     // function to update counts
     function changeCount(exercise, selected=true){
@@ -251,22 +160,6 @@
 
     // third, attach click events to html elements
 
-    // when group title is clicked
-    $('.group-title').click(function(){
-
-        // find it's exercise list and show/hide it
-        var exercises = $(this).closest('.exercise-set').find('.exercises');
-
-        if ($(this).hasClass('expanded')) {
-
-            hideExercises();
-        } else {
-
-            hideExercises();
-            showExercises(this, exercises);
-        };
-    });
-
     // when exercise is clicked
     $('#groups_pool .exercise').click(function(){
 
@@ -313,6 +206,10 @@
         };
 
         $.post('{% url "update_workout" object.pk %}', data, function(data){
+            console.log(data);
+            if (data['status'] === 'success'){
+                window.location.href = '{% url "workouts" %}';
+            }
         });
     });
 

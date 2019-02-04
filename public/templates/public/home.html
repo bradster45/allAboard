@@ -3,57 +3,13 @@
 {% load staticfiles %}
 
 {% block head %}
-    <style>
-
-        .heading{
-            margin: 10px;
-            font-weight:300;
-        }
-
-        .center{
-            text-align: center;
-            min-height: 200px;
-        }
-
-        .center select{
-            padding:5px;
-        }
-
-        .center select option{
-            padding:5px;
-        }
-
-        .groups{
-            clear:both;
-            display:block;
-            margin:10px auto;
-            width:120px;
-        }
-
-        #next{
-            border:0;
-            padding:10px 15px;
-            cursor:pointer;
-        }
-
-        p.selected-group{
-            margin:10px 0;
-        }
-        
-        #selectedGroups .remove-selection{
-            color: red;
-            margin-left: 5px;
-            padding-top: 0px;
-            font-size: 12px;
-            cursor: pointer;
-        }
-    </style>
+    <link rel="stylesheet" href="{% static 'public/css/home.css' %}">
     <!-- bootstrap ONLY GLYPHICONS -->
     <link rel="stylesheet" href="{% static 'external/bootstrap/css/bootstrap.css' %}">
 {% endblock head %}
 
 {% block body %}
-    <div class="center">
+    <div class="center darker-blue-background padding-10">
         <h3 class="heading white">What day is it today?</h3>
         <div id="selectedGroups"></div>
         <select class="groups" name="groups" id="groupSelectInput" onchange="selectDuplicate(this)">
@@ -90,6 +46,14 @@
             $('#selectedGroups').append(generateSelectedGroupHTML(selectedVal, selectedText));
         };
 
+        function removeSelection(element){
+            var selectedGroup = $(element).closest('p.selected-group');
+            var selectedID = selectedGroup.attr('data-group-id');
+            var selectedText = selectedGroup.text();
+            selectedGroup.remove();
+            $('#groupSelectInput').append(generateOptionHTML(selectedID, selectedText));
+        };
+
         $('#next').click(function(){
 
             // assemble simple array of the group IDs
@@ -106,17 +70,8 @@
 
             // send post to setup the new workout object associated with the selected groups
             $.post('{% url "setup_workout" %}', post_data, function(data){
-                console.log(data);
                 window.location.href = '/workout-edit/' + data.workout_id + '/';
             });
         });
-
-        function removeSelection(element){
-            var selectedGroup = $(element).closest('p.selected-group');
-            var selectedID = selectedGroup.attr('data-group-id');
-            var selectedText = selectedGroup.text();
-            selectedGroup.remove();
-            $('#groupSelectInput').append(generateOptionHTML(selectedID, selectedText));
-        };
     </script>
 {% endblock script %}
