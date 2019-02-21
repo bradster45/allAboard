@@ -113,7 +113,6 @@ class WorkoutEditView(DetailView):
 
 
 class GroupListView(ListView):
-    template_name = 'public/exercise_list.html'
     model = Group
     queryset = Group.objects.filter(parent=None)
 
@@ -145,7 +144,6 @@ def updateWorkout(request, pk):
     workout = Workout.objects.get(pk=pk)
     exercises = request.POST.getlist('exercises[]', [])
     messages = []
-    print(request.POST)
     if len(exercises) > 0:
         workout.workouts_with_exercises.all().delete()
         for exercise in exercises:

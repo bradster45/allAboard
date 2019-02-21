@@ -50,7 +50,6 @@ class Workout(TimeStampedModel):
     def construct_tree(self, ):
         groups = []
         for group in self.groups.all():
-            print(group)
             group = {
                 'name': group,
                 # get all exercises related to this workout, and group (as well as child groups)
@@ -59,9 +58,7 @@ class Workout(TimeStampedModel):
                 )
             }
             groups.append(group)
-        print(groups)
         return groups
-
 
 
 class Exercise(TimeStampedModel):
