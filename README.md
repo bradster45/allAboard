@@ -40,3 +40,5 @@ $('#random').click(function(){
 ### Improvements to make
 
 At some point I'd love to add models to potentially track sets, reps, weights. I'd also like to see analytics to see how many times I've done certain exercises per day trained. E.g. what percentage of my chest sessions have I done bench press?
+
+Also plan on getting this hosted on Heroku.
