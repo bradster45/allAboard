@@ -17,11 +17,11 @@
                         <td>
                             {% if workout.date|date:"Y-m-d" >= todays_date or workout.date == none %}
                                 <a href="{% url 'edit_workout' workout.pk %}">
-                                    {{ workout }}
+                                    {{ workout | title }}
                                 </a>
                             {% else %}
                                 <a href="{% url 'workout' workout.pk %}">
-                                    {{ workout }}
+                                    {{ workout | title }}
                                 </a>
                             {% endif %}
                         </td>

@@ -14,7 +14,7 @@
 
                 <div class="group parent-group" id="group_{{ wwg.group.id }}">
                     <!-- top level group -->
-                    <p class="no-margin padding-y-5">{{ wwg.group.name }}<span class="count total-count" data-count=0></span></p>
+                    <!-- <p class="no-margin padding-y-5">{{ wwg.group.name | title }}<span class="count total-count" data-count=0></span></p> -->
 
                     {% if wwg.group.exercises.all|length > 0 %}
                         <div class="compounds exercise-set">
@@ -23,7 +23,7 @@
                             <!-- compound movements -->
                             <div class="exercises">
                                 {% for exercise in wwg.group.exercises.all %}
-                                    <p class="padding-left-40 exercise no-margin padding-y-5" id="exercise_{{ exercise.id }}">{{ exercise.name }}</p>
+                                    <p class="padding-left-40 exercise no-margin padding-y-5" id="exercise_{{ exercise.id }}">{{ exercise.name | title }}</p>
                                 {% endfor %}
                             </div>
                         </div>
@@ -33,12 +33,12 @@
                         <!-- subgroups -->
                         {% for subgroup in wwg.group.subgroups.all %}
                             <div class="group exercise-set" id="group_{{ subgroup.id }}">
-                                <p class="padding-left-20 group-title no-margin padding-y-5">{{ subgroup.name }}<span class="count" data-count=0></span></p>
+                                <p class="padding-left-20 group-title no-margin padding-y-5">{{ subgroup.name | title }}<span class="count" data-count=0></span></p>
 
                                 <!-- isolations -->
                                 <div class="exercises">
                                     {% for exercise in subgroup.exercises.all %}
-                                        <p class="padding-left-40 exercise no-margin padding-y-5" id="exercise_{{ exercise.id }}">{{ exercise.name }}</p>
+                                        <p class="padding-left-40 exercise no-margin padding-y-5" id="exercise_{{ exercise.id }}">{{ exercise.name | title }}</p>
                                     {% endfor %}
                                 </div>
                             </div>
@@ -49,7 +49,7 @@
         </div>
 
         <div id="workout" class="col-50 right">
-            <h3>{{ object }}</h3>
+            <h3>{{ object | title }}</h3>
 
             {% if not object.date or object.date|date:"Y-m-d" >= todays_date %}
                 <input type="date" name="date" id="date" value="{{ object.date|date:'Y-m-d' }}">
@@ -81,7 +81,7 @@
 
 {% block script %}
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-<script src="{% static 'public/js/exercise_slider.js' %}"></script>
+<!-- <script src="{% static 'public/js/exercise_slider.js' %}"></script> -->
 <script>
 
     // first, define a number of callback functions

@@ -13,16 +13,16 @@
 
                 <div class="group parent-group padding-10" id="group_{{ group.id }}">
                     <!-- top level group -->
-                    <h3 class="no-margin margin-bottom-10">{{ group.name }}<span class="count total-count" data-count=0></span></h3>
+                    <h3 class="no-margin margin-bottom-10">{{ group.name | title }}<span class="count total-count" data-count=0></span></h3>
 
                     {% if group.exercises.all|length > 0 %}
                         <div class="compounds exercise-set">
-                            <p class="group-title padding-y-5 no-margin">Compounds<span class="count" data-count=0></span></p>
+                            <!-- <p class="group-title padding-y-5 no-margin">Compounds<span class="count" data-count=0></span></p> -->
 
                             <!-- compound movements -->
                             <div class="exercises">
                                 {% for exercise in group.exercises.all %}
-                                    <p class="exercise padding-left-10 padding-y-5 no-margin" id="exercise_{{ exercise.id }}">{{ exercise.name }}</p>
+                                    <p class="exercise padding-left-10 padding-y-5 no-margin" id="exercise_{{ exercise.id }}">{{ exercise.name | title }}</p>
                                 {% endfor %}
                             </div>
                         </div>
@@ -32,12 +32,12 @@
                         <!-- subgroups -->
                         {% for subgroup in group.subgroups.all %}
                             <div class="group exercise-set" id="group_{{ subgroup.id }}">
-                                <p class="group-title padding-y-5 no-margin">{{ subgroup.name }}<span class="count" data-count=0></span></p>
+                                <p class="group-title padding-y-5 no-margin">{{ subgroup.name | title }}<span class="count" data-count=0></span></p>
 
                                 <!-- isolations -->
                                 <div class="exercises">
                                     {% for exercise in subgroup.exercises.all %}
-                                        <p class="exercise padding-left-10 padding-y-5 no-margin" id="exercise_{{ exercise.id }}">{{ exercise.name }}</p>
+                                        <p class="exercise padding-left-10 padding-y-5 no-margin" id="exercise_{{ exercise.id }}">{{ exercise.name | title }}</p>
                                     {% endfor %}
                                 </div>
                             </div>
@@ -50,5 +50,5 @@
 {% endblock body %}
 
 {% block script %}
-    <script src="{% static 'public/js/exercise_slider.js' %}"></script>
+    <!-- <script src="{% static 'public/js/exercise_slider.js' %}"></script> -->
 {% endblock script %}

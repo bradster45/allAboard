@@ -64,7 +64,7 @@ class Workout(TimeStampedModel):
 class Exercise(TimeStampedModel):
     name = models.CharField(max_length=255, unique=True)
     group = models.ForeignKey('Group', on_delete=models.CASCADE, related_name='exercises')
-    description = models.TextField()
+    description = models.TextField(blank=True, null=True)
 
     def __str__(self, ):
         return '{} // {}'.format(self.group.name, self.name)
