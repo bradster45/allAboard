@@ -10,7 +10,7 @@
     <div class="standard-width padding-10" id="content">
 
         <div class="margin-bottom-10 clearfix">
-            <h2 class="left no-margin">{{ workout }}</h2>
+            <h2 class="left no-margin">{{ workout | title }}</h2>
             <span class="date right">{{ workout.date }}</span>
         </div>
 
@@ -18,7 +18,7 @@
             {% for group in workout.construct_tree %}
                 <div id="group_{{ group.id }}" class="group padding-y-5">
                     {% for exercise in group.exercises %}
-                        <p class="no-margin margin-bottom-10">{{ exercise.name }}</p>
+                        <p class="no-margin margin-bottom-10">{{ exercise.name | title }}</p>
                     {% endfor %}
                 </div>
             {% endfor %}
